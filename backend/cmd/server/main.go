@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ShivanshuPrajapati212/satc/internal/gemini"
 	"github.com/ShivanshuPrajapati212/satc/internal/handlers"
 	"github.com/ShivanshuPrajapati212/satc/pkg/database"
 	"github.com/joho/godotenv"
@@ -16,8 +15,6 @@ func main() {
 		fmt.Print(".env not loaded")
 	}
 	database.ConnectToMongoDB(os.Getenv("MONGO_URI"))
-
-	gemini.GeneratePost()
 
 	handlers.StartServer()
 }
