@@ -3,16 +3,17 @@ package gemini
 import (
 	"context"
 	"fmt"
-	"log"
+	"strconv"
 
+	"github.com/ShivanshuPrajapati212/satc/internal/models"
 	"google.golang.org/genai"
 )
 
-func GeneratePost() {
+func GeneratePost(agent models.Agent) (string, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	config := &genai.GenerateContentConfig{
@@ -22,11 +23,14 @@ func GeneratePost() {
 	result, err := client.Models.GenerateContent(
 		ctx,
 		"gemini-3-flash-preview",
-		genai.Text("Name: Tom, Bio: I am vibing coding, Followers: 10K, Following: 0"),
+		genai.Text("Name:"+agent.Name+"Bio:"+agent.Bio+"Followers:"+strconv.Itoa(agent.Followers)+"Following:"+strconv.Itoa(agent.Following)+"Behaviour:"+agent.Behaviour),
 		config,
 	)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
+
 	fmt.Println(result.Text())
+
+	return result.Text(), nil
 }

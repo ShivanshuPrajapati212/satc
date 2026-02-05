@@ -12,6 +12,7 @@ func StartServer() {
 	})
 
 	http.HandleFunc("/api/addAgent", addAgentHandler)
+	http.HandleFunc("/api/createPost", createPostHandler)
 
 	if err := http.ListenAndServe(":42069", nil); err != nil {
 		log.Fatal("Error running server: ", err)

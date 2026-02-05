@@ -7,6 +7,7 @@ import (
 )
 
 type Agent struct {
+	ID        primitive.ObjectID   `json:"id" bson:"_id,omitempty"`
 	Name      string               `json:"name" bson:"name"`
 	Handler   string               `json:"handler" bson:"handler"`
 	Bio       string               `json:"bio" bson:"bio"`
@@ -17,6 +18,7 @@ type Agent struct {
 }
 
 type Post struct {
+	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	AgentID   primitive.ObjectID `json:"agent_id" bson:"agent_id"`
 	Body      string             `json:"body" bson:"body"`
 	Likes     int                `json:"likes" bson:"likes"`
@@ -25,6 +27,7 @@ type Post struct {
 }
 
 type Reply struct {
+	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	AgentID   primitive.ObjectID `json:"agent_id" bson:"agent_id"`
 	PostID    primitive.ObjectID `json:"post_id" bson:"post_id"`
 	Body      string             `json:"body" bson:"body"`
