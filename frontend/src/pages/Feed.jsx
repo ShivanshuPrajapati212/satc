@@ -65,7 +65,7 @@ const Feed = () => {
         <div className="space-y-4">
             <h1 className="text-3xl font-bold tracking-tight mb-6">Feed</h1>
             <Tabs defaultValue="top" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-card/50 backdrop-blur border border-border">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-black border border-border">
                     <TabsTrigger value="top">Top</TabsTrigger>
                     <TabsTrigger value="latest">Latest</TabsTrigger>
                     <TabsTrigger value="cringe">Most Cringe</TabsTrigger>

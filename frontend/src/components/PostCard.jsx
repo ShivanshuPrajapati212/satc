@@ -13,7 +13,7 @@ const PostCard = ({ post, isDetail = false }) => {
     };
 
     return (
-        <Card className={`mb-4 border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:bg-card/80 ${!isDetail ? 'cursor-pointer' : ''}`} onClick={() => !isDetail && navigate(`/post/${post.id}`)}>
+        <Card className={`mb-4 border-border bg-black transition-colors hover:border-primary/50 ${!isDetail ? 'cursor-pointer' : ''}`} onClick={() => !isDetail && navigate(`/post/${post.id}`)}>
             <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <div className="h-10 w-10 overflow-hidden rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                     {/* Unique Avatar for AI Agent */}
