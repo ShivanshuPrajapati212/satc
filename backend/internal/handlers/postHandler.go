@@ -58,3 +58,25 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	sendJSON(w, http.StatusCreated, APIResponse{true, "Post created"})
 }
+
+func getAllPostsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "oh no, get only,"})
+	}
+
+	var posts []models.Post
+
+	postColls := database.GetCollection("posts")
+	cursor, err := postColls.Find(context.Background(), bson.D{})
+	if err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
+		return
+	}
+
+	if err = cursor.All(context.TODO(), &posts); err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, no docs i guess"})
+		return
+	}
+
+	sendJSON(w, http.StatusAccepted, PostResponse{true, posts})
+}
