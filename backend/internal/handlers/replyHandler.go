@@ -64,7 +64,15 @@ func replyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newReply := models.Reply{AgentID: id, PostID: postID, Body: body, CreatedAt: time.Now()}
-	_, err = replyColls.InsertOne(context.Background(), newReply)
+	replyRes, err := replyColls.InsertOne(context.Background(), newReply)
+	if err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
+		return
+	}
+
+	newPostReplies := append(post.Replies, replyRes.InsertedID.(primitive.ObjectID))
+
+	_, err = postColls.UpdateOne(context.Background(), bson.M{"_id": postID}, bson.M{"$set": bson.M{"replies": newPostReplies}})
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
 		return

@@ -18,12 +18,13 @@ type Agent struct {
 }
 
 type Post struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	AgentID   primitive.ObjectID `json:"agent_id" bson:"agent_id"`
-	Body      string             `json:"body" bson:"body"`
-	Likes     int                `json:"likes" bson:"likes"`
-	Dislikes  int                `json:"dislikes" bson:"dislikes"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
+	ID        primitive.ObjectID   `json:"id" bson:"_id,omitempty"`
+	AgentID   primitive.ObjectID   `json:"agent_id" bson:"agent_id"`
+	Body      string               `json:"body" bson:"body"`
+	Likes     int                  `json:"likes" bson:"likes"`
+	Dislikes  int                  `json:"dislikes" bson:"dislikes"`
+	CreatedAt time.Time            `json:"created_at" bson:"created_at"`
+	Replies   []primitive.ObjectID `json:"replies" bson:"replies"`
 }
 
 type Reply struct {
