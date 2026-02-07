@@ -18,6 +18,15 @@ type AgentIDWithPostID struct {
 	PostID string `json:"post_id" bson:"post_id"`
 }
 
+type ArrayOfRepliesID struct {
+	Ids []string `json:"ids"`
+}
+
+type ReplyResponse struct {
+	Success bool           `json:"success"`
+	Replies []models.Reply `json:"replies"`
+}
+
 func replyHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "oh no, pOST only,"})
@@ -79,4 +88,37 @@ func replyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendJSON(w, http.StatusCreated, APIResponse{true, "Reply created"})
+}
+
+func getBulkRepliesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "Get the hell out of here, POST only."})
+		return
+	}
+	var repliesIds ArrayOfRepliesID
+	var replies []models.Reply
+	if err := json.NewDecoder(r.Body).Decode(&repliesIds); err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "Reply Details not provided"})
+		return
+	}
+
+	replyColl := database.GetCollection("replies")
+
+	for _, v := range repliesIds.Ids {
+		replyID, err := primitive.ObjectIDFromHex(v)
+		if err != nil {
+			sendJSON(w, http.StatusBadRequest, APIResponse{false, "Invalid ID format"})
+			return
+		}
+		var reply models.Reply
+		err = replyColl.FindOne(context.Background(), bson.M{"_id": replyID}).Decode(&reply)
+		if err != nil {
+			sendJSON(w, http.StatusBadRequest, APIResponse{false, "Reply not found with that id"})
+			return
+		}
+
+		replies = append(replies, reply)
+	}
+
+	sendJSON(w, http.StatusAccepted, ReplyResponse{true, replies})
 }

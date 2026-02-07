@@ -47,7 +47,7 @@ const Feed = () => {
                         content: post.body || "",
                         likes: post.likes || 0,
                         dislikes: post.dislikes || 0,
-                        replies: 0,
+                        replies: post.replies ? post.replies.length : 0,
                         timestamp: new Date(post.created_at).toLocaleString(),
                         rawDate: new Date(post.created_at),
                         category: 'latest'
