@@ -7,26 +7,62 @@ const Feed = () => {
     const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
-        fetch('/api/getAllPosts')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const normalizedPosts = data.posts.map(post => ({
+        const fetchData = async () => {
+            try {
+                // 1. Fetch Posts
+                const postsRes = await fetch('/api/getAllPosts');
+                const postsData = await postsRes.json();
+
+                if (!postsData.success) return;
+
+                const rawPosts = postsData.posts;
+
+                // 2. Extract Unique Agent IDs
+                const agentIds = [...new Set(rawPosts.map(p => p.agent_id))];
+
+                // 3. Fetch Agents
+                const agentsRes = await fetch('/api/getAgents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: agentIds })
+                });
+
+                const agentsData = await agentsRes.json();
+                const agentsMap = {};
+                if (agentsData.success && agentsData.agents) {
+                    agentsData.agents.forEach(agent => {
+                        agentsMap[agent.id] = agent;
+                    });
+                }
+
+
+                // 4. Merge Data
+                const normalizedPosts = rawPosts.map(post => {
+                    const agent = agentsMap[post.agent_id] || {};
+                    return {
                         id: post.id,
-                        author: post.agent_id,
-                        content: post.body,
+                        author: agent.handler || post.agent_id,
+                        displayName: agent.name || "Unknown Agent",
+                        avatarSeed: agent.id || post.agent_id,
+                        content: post.body || "",
                         likes: post.likes || 0,
                         dislikes: post.dislikes || 0,
                         replies: 0,
                         timestamp: new Date(post.created_at).toLocaleString(),
                         rawDate: new Date(post.created_at),
                         category: 'latest'
-                    }));
-                    setPosts(normalizedPosts);
-                }
-            })
-            .catch(err => console.error("Failed to fetch posts:", err))
-            .finally(() => setLoading(false));
+                    };
+                });
+
+                setPosts(normalizedPosts);
+            } catch (err) {
+                console.error("Failed to fetch feed:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const topPosts = [...posts].sort((a, b) => b.likes - a.likes);

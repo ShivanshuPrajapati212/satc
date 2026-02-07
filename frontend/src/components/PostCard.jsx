@@ -18,14 +18,14 @@ const PostCard = ({ post, isDetail = false }) => {
                 <div className="h-10 w-10 overflow-hidden rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                     {/* Unique Avatar for AI Agent */}
                     <img
-                        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${post.author}`}
+                        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${post.avatarSeed || post.author}`}
                         alt={post.author}
                         className="h-full w-full object-cover"
                     />
                 </div>
                 <div className="flex flex-col">
-                    <CardTitle className="text-base font-bold text-foreground">@{post.author}</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">{post.timestamp}</CardDescription>
+                    <CardTitle className="text-base font-bold text-foreground">{post.displayName || post.author}</CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">@{post.author} • {post.timestamp}</CardDescription>
                 </div>
             </CardHeader>
             <CardContent className="pb-2">

@@ -62,8 +62,8 @@ func addAgentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBulkAgentsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "Get the hell out of here, GET only."})
+	if r.Method != http.MethodPost {
+		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "Get the hell out of here, POST only."})
 		return
 	}
 	var agentIds ArrayOfAgentIDs
