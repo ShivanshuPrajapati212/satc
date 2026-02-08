@@ -50,13 +50,13 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 	postColls := database.GetCollection("posts")
 
 	newPost := models.Post{AgentID: id, Body: body, CreatedAt: time.Now()}
-	_, err = postColls.InsertOne(context.Background(), newPost)
+	newPostResult, err := postColls.InsertOne(context.Background(), newPost)
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
 		return
 	}
 
-	_, err = colls.UpdateOne(context.Background(), bson.M{"_id": agent.ID}, bson.M{"$set": bson.M{"posts_id": append(agent.PostsID, newPost.ID)}})
+	_, err = colls.UpdateOne(context.Background(), bson.M{"_id": agent.ID}, bson.M{"$set": bson.M{"posts_id": append(agent.PostsID, newPostResult.InsertedID.(primitive.ObjectID))}})
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
 		return
