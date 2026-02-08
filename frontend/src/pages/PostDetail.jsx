@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PostCard from "@/components/PostCard";
+import AgentSelectModal from "@/components/AgentSelectModal";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageSquare } from "lucide-react";
 
 const PostDetail = () => {
     const { id } = useParams();
@@ -110,6 +111,47 @@ const PostDetail = () => {
         fetchPostDetails();
     }, [id]);
 
+    const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+
+    // Extract unique agents for the modal (author + repliers)
+    const uniqueAgents = React.useMemo(() => {
+        if (!post) return [];
+        const map = new Map();
+
+        // Add post author
+        if (post.avatarSeed && post.displayName) {
+            map.set(post.avatarSeed, { id: post.avatarSeed, name: post.displayName, handler: post.author });
+        }
+
+        // Add repliers
+        replies.forEach(r => {
+            if (r.avatarSeed && r.displayName) {
+                map.set(r.avatarSeed, { id: r.avatarSeed, name: r.displayName, handler: r.author });
+            }
+        });
+
+        return Array.from(map.values());
+    }, [post, replies]);
+
+    const handleCreateReply = async (agentId) => {
+        try {
+            const res = await fetch('/api/makeReply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: agentId, post_id: post.id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Refresh to see the new reply
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                alert('Failed: ' + data.message);
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    };
+
     if (loading) {
         return <div className="p-8 text-center text-muted-foreground">Loading post...</div>;
     }
@@ -120,9 +162,19 @@ const PostDetail = () => {
 
     return (
         <div className='animate-in fade-in duration-500'>
-            <Button variant="ghost" className="mb-4 pl-0 hover:pl-2 transition-all" onClick={() => navigate(-1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Feed
-            </Button>
+            <div className="flex items-center justify-between mb-4">
+                <Button variant="ghost" className="pl-0 hover:pl-2 transition-all" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Feed
+                </Button>
+                <Button
+                    variant="outline"
+                    className="border-red-500/20 text-red-500 hover:bg-red-500/10 hover:text-red-400"
+                    onClick={() => setIsReplyModalOpen(true)}
+                >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    TRIGGER REPLY
+                </Button>
+            </div>
 
             <PostCard post={post} isDetail={true} />
 
@@ -138,6 +190,14 @@ const PostDetail = () => {
                     )}
                 </div>
             </div>
+
+            <AgentSelectModal
+                isOpen={isReplyModalOpen}
+                onClose={() => setIsReplyModalOpen(false)}
+                onSubmit={handleCreateReply}
+                agents={uniqueAgents}
+                title="Trigger Reply"
+            />
         </div>
     );
 };

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/PostCard";
+import AgentSelectModal from "@/components/AgentSelectModal";
+import { Button } from "@/components/ui/button";
+import { Plus } from 'lucide-react';
 
 const Feed = () => {
     const [posts, setPosts] = React.useState([]);
@@ -69,13 +72,56 @@ const Feed = () => {
     const latestPosts = [...posts].sort((a, b) => b.rawDate - a.rawDate);
     const cringePosts = [...posts].sort((a, b) => b.dislikes - a.dislikes);
 
+    const [isPostModalOpen, setIsPostModalOpen] = React.useState(false);
+
+    // Extract unique agents for the modal
+    const uniqueAgents = React.useMemo(() => {
+        const map = new Map();
+        posts.forEach(p => {
+            if (p.avatarSeed && p.displayName) {
+                map.set(p.avatarSeed, { id: p.avatarSeed, name: p.displayName, handler: p.author });
+            }
+        });
+        return Array.from(map.values());
+    }, [posts]);
+
+    const handleCreatePost = async (agentId) => {
+        try {
+            const res = await fetch('/api/createPost', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: agentId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Refresh feed after a short delay to allow backend to process
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                alert('Failed: ' + data.message);
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    };
+
     if (loading) {
         return <div className="p-8 text-center text-muted-foreground">Loading feed...</div>;
     }
 
     return (
         <div className="space-y-4">
-            <h1 className="text-3xl font-bold tracking-tight mb-6">Feed</h1>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold tracking-tight text-white">Feed</h1>
+                <Button
+                    variant="outline"
+                    className="border-red-500/20 text-red-500 hover:bg-red-500/10 hover:text-red-400"
+                    onClick={() => setIsPostModalOpen(true)}
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    TRIGGER POST
+                </Button>
+            </div>
+
             <Tabs defaultValue="latest" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-6 bg-black border border-border">
                     <TabsTrigger value="top">Top</TabsTrigger>
@@ -92,6 +138,14 @@ const Feed = () => {
                     {cringePosts.map(post => <PostCard key={post.id} post={post} />)}
                 </TabsContent>
             </Tabs>
+
+            <AgentSelectModal
+                isOpen={isPostModalOpen}
+                onClose={() => setIsPostModalOpen(false)}
+                onSubmit={handleCreatePost}
+                agents={uniqueAgents}
+                title="Trigger New Post"
+            />
         </div>
     );
 };

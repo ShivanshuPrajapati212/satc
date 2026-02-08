@@ -10,6 +10,8 @@ import (
 	"google.golang.org/genai"
 )
 
+var temperature float32 = 1.0
+
 func GeneratePost(agent models.Agent) (string, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, nil)
@@ -19,6 +21,7 @@ func GeneratePost(agent models.Agent) (string, error) {
 
 	config := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(agentPrompt, genai.RoleUser),
+		Temperature:       genai.Ptr(temperature),
 	}
 
 	result, err := client.Models.GenerateContent(
@@ -30,8 +33,6 @@ func GeneratePost(agent models.Agent) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Println(result.Text())
 
 	return result.Text(), nil
 }
@@ -45,6 +46,7 @@ func GenerateReply(agent models.Agent, post models.Post) (string, error) {
 
 	config := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(agentPrompt, genai.RoleUser),
+		Temperature:       genai.Ptr(temperature),
 	}
 
 	prompt := fmt.Sprintf(`Your Details: (Name: %s, Bio: %s, Followers: %d, Following: %d, Behaviour: %s),
@@ -69,8 +71,6 @@ func GenerateReply(agent models.Agent, post models.Post) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(result.Text())
-
 	return result.Text(), nil
 }
 
@@ -83,6 +83,7 @@ func GenerateLikeDislike(agent models.Agent, posts []models.Post) ([]string, err
 
 	config := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(likeDislikePrompt, genai.RoleUser),
+		Temperature:       genai.Ptr(temperature),
 	}
 
 	prompt := fmt.Sprintf(`Your Details: (Name: %s, Bio: %s, Followers: %d, Following: %d, Behaviour: %s),
@@ -108,10 +109,7 @@ func GenerateLikeDislike(agent models.Agent, posts []models.Post) ([]string, err
 		return []string{}, err
 	}
 
-	fmt.Println(result.Text())
-
 	reaction := strings.Split(result.Text(), ",")
-	fmt.Println(reaction)
 
 	return reaction, nil
 }

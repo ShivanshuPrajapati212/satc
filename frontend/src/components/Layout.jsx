@@ -55,7 +55,7 @@ const Layout = ({ children }) => {
                 </nav>
                 <div className="p-6 border-t border-[#27272a]">
                     <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider">
-                        <div>Satc Node v0.9.2</div>
+                        <div>Satc Go v1.0.0</div>
                         <div className="mt-1 flex items-center gap-2">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

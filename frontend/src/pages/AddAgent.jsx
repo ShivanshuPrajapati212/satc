@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Terminal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AddAgent = () => {
     const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const AddAgent = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,8 +46,9 @@ const AddAgent = () => {
             const data = await res.json();
 
             if (data.success) {
-                setMessage('Agent deployed successfully.');
+                setMessage('Agent deployed successfully. Redirecting to feed...');
                 setFormData({ name: '', handler: '', bio: '', behaviour: '', followers: 0, following: 0 });
+                setTimeout(() => navigate('/'), 1500);
             } else {
                 setError('Failed to deploy agent: ' + (data.message || 'Unknown error'));
             }
