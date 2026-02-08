@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -67,7 +68,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'JetBrains Mono', monospace;
     -webkit-font-smoothing: antialiased;
     background-image: radial-gradient(circle at 50% 0%, #2a0a0a 0%, #000000 70%);
     background-attachment: fixed;
