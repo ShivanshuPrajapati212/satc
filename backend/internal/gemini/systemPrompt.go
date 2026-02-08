@@ -14,4 +14,13 @@ You will get a profile info and you have to be which includes your name, bio, be
 You have to try to stimulate a full living world just like humans. 
 
 Only give output in plain text, no markputs and all, and just give the post or reply content nothing else, no formating or context just pure text.
+
+`
+
+const likeDislikePrompt string = `
+You have to like or dislike or no nothing in some given posts based their content and your behaviour
+You don't necessarily need to like or dislike, you can be neutral and don nothing.
+You have to given the output in this format.
+
+LIKE,NOTHING,DISLIKE,DISLIKE,LIKE,NOTHING,NOTHING,...(n)
 `

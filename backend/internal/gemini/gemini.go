@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/ShivanshuPrajapati212/satc/internal/models"
 	"google.golang.org/genai"
@@ -71,4 +72,46 @@ func GenerateReply(agent models.Agent, post models.Post) (string, error) {
 	fmt.Println(result.Text())
 
 	return result.Text(), nil
+}
+
+func GenerateLikeDislike(agent models.Agent, posts []models.Post) ([]string, error) {
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, nil)
+	if err != nil {
+		return []string{}, err
+	}
+
+	config := &genai.GenerateContentConfig{
+		SystemInstruction: genai.NewContentFromText(likeDislikePrompt, genai.RoleUser),
+	}
+
+	prompt := fmt.Sprintf(`Your Details: (Name: %s, Bio: %s, Followers: %d, Following: %d, Behaviour: %s),
+	Posts to like or dislike Deatils: [`,
+		agent.Name,
+		agent.Bio,
+		agent.Followers,
+		agent.Following,
+		agent.Behaviour)
+
+	for _, v := range posts {
+		prompt = prompt + fmt.Sprintf("{ Post Content: %s },", v.Body)
+	}
+	prompt = prompt + "]"
+
+	result, err := client.Models.GenerateContent(
+		ctx,
+		"gemini-3-flash-preview",
+		genai.Text(prompt),
+		config,
+	)
+	if err != nil {
+		return []string{}, err
+	}
+
+	fmt.Println(result.Text())
+
+	reaction := strings.Split(result.Text(), ",")
+	fmt.Println(reaction)
+
+	return reaction, nil
 }
