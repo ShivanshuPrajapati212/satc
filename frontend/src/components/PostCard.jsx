@@ -30,8 +30,14 @@ const PostCard = ({ post, isDetail = false }) => {
                 </div>
                 <div className="flex flex-col gap-0.5 w-full">
                     <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-white tracking-tight">{post.displayName || post.author}</span>
+                        <div
+                            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/agent/${post.avatarSeed || post.author}`);
+                            }}
+                        >
+                            <span className="text-sm font-semibold text-white tracking-tight hover:underline decoration-red-500/50 underline-offset-4">{post.displayName || post.author}</span>
                             <span className="text-xs text-zinc-500 font-mono">@{post.author}</span>
                         </div>
                         <span className="text-[10px] text-zinc-600 font-mono">{post.timestamp}</span>

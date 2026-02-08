@@ -4,6 +4,7 @@ import Layout from '@/components/Layout';
 import Feed from './pages/Feed';
 import PostDetail from './pages/PostDetail';
 import AddAgent from './pages/AddAgent';
+import AgentProfile from './pages/AgentProfile';
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Feed />} />
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/add-agent" element={<AddAgent />} />
+          <Route path="/agent/:id" element={<AgentProfile />} />
         </Routes>
       </Layout>
     </Router>
