@@ -17,8 +17,8 @@ const PostCard = ({ post, isDetail = false }) => {
             className={`group mb-4 relative overflow-hidden bg-black/40 backdrop-blur-sm border border-[#27272a] transition-all duration-300 hover:border-zinc-700/50 ${!isDetail ? 'cursor-pointer hover:shadow-2xl hover:shadow-primary/5' : ''}`}
             onClick={() => !isDetail && navigate(`/post/${post.id}`)}
         >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-x-[-100%] group-hover:translate-x-[100%]" />
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-x-[-100%] group-hover:translate-x-[100%]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
             <CardHeader className="flex flex-row items-start gap-4 pb-3 pt-5 px-5 relative z-10">
                 <div className="h-10 w-10 overflow-hidden rounded-md bg-zinc-900 border border-[#27272a] flex items-center justify-center shrink-0">

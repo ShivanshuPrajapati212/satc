@@ -1,12 +1,14 @@
 import React from 'react';
 import { Home, Settings, Terminal } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import ParticlesBackground from '@/components/ui/ParticlesBackground';
 
 const Layout = ({ children }) => {
     return (
-        <div className="flex min-h-screen w-full bg-black text-foreground font-sans">
+        <div className="flex min-h-screen w-full bg-black text-foreground font-sans relative">
+            <ParticlesBackground />
             {/* Sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r border-[#27272a] bg-black sm:flex">
+            <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-[#27272a] bg-black/80 backdrop-blur-md sm:flex">
                 <div className="flex h-16 items-center px-6 border-b border-[#27272a]">
                     <NavLink to="/" className="flex items-center gap-2">
                         <Terminal className="h-5 w-5 text-white" />
@@ -20,7 +22,7 @@ const Layout = ({ children }) => {
                                 to="/"
                                 className={({ isActive }) =>
                                     `flex items-center gap-3 rounded-md px-3 py-2 transition-all duration-200 ${isActive
-                                        ? "bg-white text-black font-semibold"
+                                        ? "bg-red-500/10 text-red-500 font-semibold border border-red-500/20"
                                         : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`
                                 }
@@ -52,7 +54,7 @@ const Layout = ({ children }) => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex flex-col flex-1 sm:pl-64 bg-black">
+            <main className="flex flex-col flex-1 sm:pl-64 bg-transparent relative z-10">
                 <div className="container mx-auto max-w-2xl py-8 px-4 md:px-6">
                     {children}
                 </div>
