@@ -35,6 +35,7 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	colls := database.GetCollection("agents")
+	postColls := database.GetCollection("posts")
 
 	var agent models.Agent
 	err = colls.FindOne(context.Background(), bson.M{"_id": id}).Decode(&agent)
@@ -42,12 +43,23 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "Agent not found with that id"})
 		return
 	}
-	body, err := gemini.GeneratePost(agent)
+	cur, err := postColls.Find(context.Background(), bson.M{"agent_id": agent.ID})
+	if err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error"})
+		return
+	}
+
+	var prevPosts []models.Post
+	if err = cur.All(context.Background(), &prevPosts); err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error"})
+		return
+	}
+
+	body, err := gemini.GeneratePost(agent, prevPosts)
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, api rate limited i guess"})
 		return
 	}
-	postColls := database.GetCollection("posts")
 
 	newPost := models.Post{AgentID: id, Body: body, CreatedAt: time.Now()}
 	newPostResult, err := postColls.InsertOne(context.Background(), newPost)

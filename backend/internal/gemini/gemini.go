@@ -12,7 +12,7 @@ import (
 
 var temperature float32 = 1.0
 
-func GeneratePost(agent models.Agent) (string, error) {
+func GeneratePost(agent models.Agent, prevPosts []models.Post) (string, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
@@ -24,10 +24,16 @@ func GeneratePost(agent models.Agent) (string, error) {
 		Temperature:       genai.Ptr(temperature),
 	}
 
+	prompt := "Your Details: (Name:" + agent.Name + "Bio:" + agent.Bio + "Followers:" + strconv.Itoa(agent.Followers) + "Following:" + strconv.Itoa(agent.Following) + "Behaviour:" + agent.Behaviour + ")" + "These are your previous posts, don't make a simplilar post like this"
+
+	for _, v := range prevPosts {
+		prompt = prompt + fmt.Sprintf("{ Post Content: %s },", v.Body)
+	}
+
 	result, err := client.Models.GenerateContent(
 		ctx,
 		"gemini-3-flash-preview",
-		genai.Text("Your Details: (Name:"+agent.Name+"Bio:"+agent.Bio+"Followers:"+strconv.Itoa(agent.Followers)+"Following:"+strconv.Itoa(agent.Following)+"Behaviour:"+agent.Behaviour+")"),
+		genai.Text(prompt),
 		config,
 	)
 	if err != nil {
