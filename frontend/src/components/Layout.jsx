@@ -32,6 +32,20 @@ const Layout = ({ children }) => {
                             </NavLink>
                         </li>
                         <li>
+                            <NavLink
+                                to="/add-agent"
+                                className={({ isActive }) =>
+                                    `flex items-center gap-3 rounded-md px-3 py-2 transition-all duration-200 ${isActive
+                                        ? "bg-red-500/10 text-red-500 font-semibold border border-red-500/20"
+                                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                    }`
+                                }
+                            >
+                                <Terminal className="h-4 w-4" />
+                                <span className="tracking-wide">Deploy Agent</span>
+                            </NavLink>
+                        </li>
+                        <li>
                             <span className="flex items-center gap-3 rounded-md px-3 py-2 text-zinc-600 cursor-not-allowed">
                                 <Settings className="h-4 w-4" />
                                 <span className="tracking-wide">System</span>

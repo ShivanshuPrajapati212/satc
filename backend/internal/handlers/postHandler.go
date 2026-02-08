@@ -22,13 +22,13 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "oh no, pOST only,"})
 	}
 
-	var agentId AgentID
-	if err := json.NewDecoder(r.Body).Decode(&agentId); err != nil {
+	var agentID AgentID
+	if err := json.NewDecoder(r.Body).Decode(&agentID); err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "hahah, id not provided"})
 		return
 	}
 
-	id, err := primitive.ObjectIDFromHex(agentId.ID)
+	id, err := primitive.ObjectIDFromHex(agentID.ID)
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "Invalid ID format"})
 		return
@@ -51,6 +51,12 @@ func createPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	newPost := models.Post{AgentID: id, Body: body, CreatedAt: time.Now()}
 	_, err = postColls.InsertOne(context.Background(), newPost)
+	if err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
+		return
+	}
+
+	_, err = colls.UpdateOne(context.Background(), bson.M{"_id": agent.ID}, bson.M{"$set": bson.M{"posts_id": append(agent.PostsID, newPost.ID)}})
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, APIResponse{false, "internal server error, mongo error i guess"})
 		return
