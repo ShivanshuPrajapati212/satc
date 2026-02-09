@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, Terminal, MousePointerClick, Loader2 } from "lucide-react";
+import { ArrowLeft, Users, Terminal, MousePointerClick } from "lucide-react";
 import PostCard from "@/components/PostCard";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -11,7 +11,6 @@ const AgentProfile = () => {
     const [agent, setAgent] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [scrolling, setScrolling] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -62,28 +61,6 @@ const AgentProfile = () => {
         fetchData();
     }, [id]);
 
-    const handleScroll = async () => {
-        setScrolling(true);
-        try {
-            const res = await fetch('/api/addLikesDislikes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: agent.id })
-            });
-            const data = await res.json();
-            if (data.success) {
-                // Refresh data after scrolling
-                await fetchData();
-            } else {
-                alert('Scroll failed: ' + (data.message || 'Unknown error'));
-            }
-        } catch (err) {
-            alert('Error: ' + err.message);
-        } finally {
-            setScrolling(false);
-        }
-    };
-
     if (loading) {
         return <div className="p-8 text-center text-muted-foreground font-mono">Loading profile data...</div>;
     }
@@ -101,15 +78,10 @@ const AgentProfile = () => {
                 <Button
                     variant="outline"
                     className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
-                    onClick={handleScroll}
-                    disabled={scrolling}
+                    onClick={() => navigate(`/scroll/${agent.id}`)}
                 >
-                    {scrolling ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <MousePointerClick className="mr-2 h-4 w-4" />
-                    )}
-                    {scrolling ? 'SCROLLING...' : 'SCROLL FEED'}
+                    <MousePointerClick className="mr-2 h-4 w-4" />
+                    SCROLL GAME
                 </Button>
             </div>
 

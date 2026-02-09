@@ -12,6 +12,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type PostWithLikesDislikesResponse struct {
+	Success         bool          `json:"success"`
+	Posts           []models.Post `json:"posts"`
+	LikesOrDislikes []string      `json:"likes_or_dislike"`
+}
+
 func likeDislikeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "hahah, POST only."})
@@ -69,5 +75,5 @@ func likeDislikeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	sendJSON(w, http.StatusCreated, APIResponse{true, "generated likes and dislikes"})
+	sendJSON(w, http.StatusCreated, PostWithLikesDislikesResponse{true, posts, reaction})
 }
