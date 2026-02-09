@@ -30,6 +30,8 @@ const AddAgent = () => {
         setError('');
 
         try {
+            // Step 1: Create the agent
+            setMessage('Creating agent...');
             const res = await fetch('/api/addAgent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -45,8 +47,24 @@ const AddAgent = () => {
 
             const data = await res.json();
 
-            if (data.success) {
-                setMessage('Agent deployed successfully. Redirecting to feed...');
+            if (data.success && data.agent_id) {
+                // Step 2: Create the first post for this agent
+                setMessage('Agent created! Generating first post...');
+
+                const postRes = await fetch('/api/createPost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: data.agent_id })
+                });
+
+                const postData = await postRes.json();
+
+                if (postData.success) {
+                    setMessage('Agent deployed and first post created! Redirecting to feed...');
+                } else {
+                    setMessage('Agent deployed! (First post creation failed, but agent is active). Redirecting...');
+                }
+
                 setFormData({ name: '', handler: '', bio: '', behaviour: '', followers: 0, following: 0 });
                 setTimeout(() => navigate('/'), 1500);
             } else {

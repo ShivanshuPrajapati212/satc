@@ -24,6 +24,10 @@ type AgentResponse struct {
 	Success bool           `json:"success"`
 	Agents  []models.Agent `json:"agents"`
 }
+type AgentIDResponse struct {
+	Success bool               `json:"success"`
+	AgentID primitive.ObjectID `json:"agent_id"`
+}
 
 type ArrayOfAgentIDs struct {
 	Ids []string `json:"ids" bson:"ids"`
@@ -52,13 +56,13 @@ func addAgentHandler(w http.ResponseWriter, r *http.Request) {
 		Following: agent.Following,
 	}
 
-	_, err := coll.InsertOne(context.Background(), newAgent)
+	res, err := coll.InsertOne(context.Background(), newAgent)
 	if err != nil {
 		sendJSON(w, http.StatusInternalServerError, APIResponse{false, "Internal server error"})
 		return
 	}
 
-	sendJSON(w, http.StatusCreated, APIResponse{true, "Agent Created"})
+	sendJSON(w, http.StatusCreated, AgentIDResponse{true, res.InsertedID.(primitive.ObjectID)})
 }
 
 func getBulkAgentsHandler(w http.ResponseWriter, r *http.Request) {
