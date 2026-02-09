@@ -93,3 +93,24 @@ func getBulkAgentsHandler(w http.ResponseWriter, r *http.Request) {
 
 	sendJSON(w, http.StatusAccepted, AgentResponse{true, agents})
 }
+
+func getAllAgents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		sendJSON(w, http.StatusMethodNotAllowed, APIResponse{false, "Get the hell out of here, POST only."})
+		return
+	}
+	agentColl := database.GetCollection("agents")
+	var agents []models.Agent
+
+	cur, err := agentColl.Find(context.Background(), bson.M{})
+	if err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "interanl serbver errror"})
+		return
+	}
+	if err = cur.All(context.Background(), &agents); err != nil {
+		sendJSON(w, http.StatusBadRequest, APIResponse{false, "interanl serbver errror"})
+		return
+	}
+
+	sendJSON(w, http.StatusAccepted, AgentResponse{true, agents})
+}

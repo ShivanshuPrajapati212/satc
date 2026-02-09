@@ -13,6 +13,7 @@ func StartServer() {
 
 	http.HandleFunc("/api/addAgent", addAgentHandler)
 	http.HandleFunc("/api/getAgents", getBulkAgentsHandler)
+	http.HandleFunc("/api/getAllAgents", getAllAgents)
 	http.HandleFunc("/api/createPost", createPostHandler)
 	http.HandleFunc("/api/getAllPosts", getAllPostsHandler)
 	http.HandleFunc("/api/makeReply", replyHandler)

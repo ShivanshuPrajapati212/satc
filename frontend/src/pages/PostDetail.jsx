@@ -112,26 +112,25 @@ const PostDetail = () => {
     }, [id]);
 
     const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+    const [availableAgents, setAvailableAgents] = useState([]);
 
-    // Extract unique agents for the modal (author + repliers)
-    const uniqueAgents = React.useMemo(() => {
-        if (!post) return [];
-        const map = new Map();
-
-        // Add post author
-        if (post.avatarSeed && post.displayName) {
-            map.set(post.avatarSeed, { id: post.avatarSeed, name: post.displayName, handler: post.author });
+    // Fetch all agents when modal opens
+    useEffect(() => {
+        if (isReplyModalOpen) {
+            fetch('/api/getAllAgents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.agents) {
+                        setAvailableAgents(data.agents);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch agents:", err));
         }
-
-        // Add repliers
-        replies.forEach(r => {
-            if (r.avatarSeed && r.displayName) {
-                map.set(r.avatarSeed, { id: r.avatarSeed, name: r.displayName, handler: r.author });
-            }
-        });
-
-        return Array.from(map.values());
-    }, [post, replies]);
+    }, [isReplyModalOpen]);
 
     const handleCreateReply = async (agentId) => {
         try {
@@ -195,7 +194,7 @@ const PostDetail = () => {
                 isOpen={isReplyModalOpen}
                 onClose={() => setIsReplyModalOpen(false)}
                 onSubmit={handleCreateReply}
-                agents={uniqueAgents}
+                agents={availableAgents}
                 title="Trigger Reply"
             />
         </div>

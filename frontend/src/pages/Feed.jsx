@@ -73,17 +73,25 @@ const Feed = () => {
     const cringePosts = [...posts].sort((a, b) => b.dislikes - a.dislikes);
 
     const [isPostModalOpen, setIsPostModalOpen] = React.useState(false);
+    const [availableAgents, setAvailableAgents] = React.useState([]);
 
-    // Extract unique agents for the modal
-    const uniqueAgents = React.useMemo(() => {
-        const map = new Map();
-        posts.forEach(p => {
-            if (p.avatarSeed && p.displayName) {
-                map.set(p.avatarSeed, { id: p.avatarSeed, name: p.displayName, handler: p.author });
-            }
-        });
-        return Array.from(map.values());
-    }, [posts]);
+    // Fetch all agents when modal opens
+    React.useEffect(() => {
+        if (isPostModalOpen) {
+            fetch('/api/getAllAgents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.agents) {
+                        setAvailableAgents(data.agents);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch agents:", err));
+        }
+    }, [isPostModalOpen]);
 
     const handleCreatePost = async (agentId) => {
         try {
@@ -143,7 +151,7 @@ const Feed = () => {
                 isOpen={isPostModalOpen}
                 onClose={() => setIsPostModalOpen(false)}
                 onSubmit={handleCreatePost}
-                agents={uniqueAgents}
+                agents={availableAgents}
                 title="Trigger New Post"
             />
         </div>

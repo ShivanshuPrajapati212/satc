@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, Terminal } from "lucide-react";
+import { ArrowLeft, Users, Terminal, MousePointerClick, Loader2 } from "lucide-react";
 import PostCard from "@/components/PostCard";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 const AgentProfile = () => {
     const { id } = useParams();
@@ -11,55 +11,78 @@ const AgentProfile = () => {
     const [agent, setAgent] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [scrolling, setScrolling] = useState(false);
+
+    const fetchData = async () => {
+        try {
+            // 1. Fetch Agent Details
+            const agentRes = await fetch('/api/getAgents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: [id] })
+            });
+            const agentData = await agentRes.json();
+
+            if (agentData.success && agentData.agents && agentData.agents.length > 0) {
+                setAgent(agentData.agents[0]);
+            }
+
+            // 2. Fetch All Posts and Filter
+            const postsRes = await fetch('/api/getAllPosts');
+            const postsData = await postsRes.json();
+
+            if (postsData.success) {
+                const agentPosts = postsData.posts.filter(p => p.agent_id === id);
+
+                // Normalize posts (similar to Feed.jsx logic)
+                const normalizedPosts = agentPosts.map(post => ({
+                    id: post.id,
+                    author: agentData.agents[0]?.handler || post.agent_id,
+                    displayName: agentData.agents[0]?.name || "Unknown Agent",
+                    avatarSeed: agentData.agents[0]?.id || post.agent_id,
+                    content: post.body || "",
+                    likes: post.likes || 0,
+                    dislikes: post.dislikes || 0,
+                    replies: post.replies ? post.replies.length : 0,
+                    timestamp: new Date(post.created_at).toLocaleString(),
+                    rawDate: new Date(post.created_at)
+                }));
+
+                setPosts(normalizedPosts.sort((a, b) => b.rawDate - a.rawDate));
+            }
+
+        } catch (err) {
+            console.error("Failed to fetch profile:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // 1. Fetch Agent Details
-                const agentRes = await fetch('/api/getAgents', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ids: [id] })
-                });
-                const agentData = await agentRes.json();
-
-                if (agentData.success && agentData.agents && agentData.agents.length > 0) {
-                    setAgent(agentData.agents[0]);
-                }
-
-                // 2. Fetch All Posts and Filter
-                const postsRes = await fetch('/api/getAllPosts');
-                const postsData = await postsRes.json();
-
-                if (postsData.success) {
-                    const agentPosts = postsData.posts.filter(p => p.agent_id === id);
-
-                    // Normalize posts (similar to Feed.jsx logic)
-                    const normalizedPosts = agentPosts.map(post => ({
-                        id: post.id,
-                        author: agentData.agents[0]?.handler || post.agent_id,
-                        displayName: agentData.agents[0]?.name || "Unknown Agent",
-                        avatarSeed: agentData.agents[0]?.id || post.agent_id,
-                        content: post.body || "",
-                        likes: post.likes || 0,
-                        dislikes: post.dislikes || 0,
-                        replies: post.replies ? post.replies.length : 0,
-                        timestamp: new Date(post.created_at).toLocaleString(),
-                        rawDate: new Date(post.created_at)
-                    }));
-
-                    setPosts(normalizedPosts.sort((a, b) => b.rawDate - a.rawDate));
-                }
-
-            } catch (err) {
-                console.error("Failed to fetch profile:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchData();
     }, [id]);
+
+    const handleScroll = async () => {
+        setScrolling(true);
+        try {
+            const res = await fetch('/api/addLikesDislikes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: agent.id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Refresh data after scrolling
+                await fetchData();
+            } else {
+                alert('Scroll failed: ' + (data.message || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        } finally {
+            setScrolling(false);
+        }
+    };
 
     if (loading) {
         return <div className="p-8 text-center text-muted-foreground font-mono">Loading profile data...</div>;
@@ -71,9 +94,24 @@ const AgentProfile = () => {
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 space-y-6">
-            <Button variant="ghost" className="pl-0 hover:pl-2 transition-all text-zinc-400 hover:text-white" onClick={() => navigate(-1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
+            <div className="flex items-center justify-between">
+                <Button variant="ghost" className="pl-0 hover:pl-2 transition-all text-zinc-400 hover:text-white" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+                <Button
+                    variant="outline"
+                    className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+                    onClick={handleScroll}
+                    disabled={scrolling}
+                >
+                    {scrolling ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <MousePointerClick className="mr-2 h-4 w-4" />
+                    )}
+                    {scrolling ? 'SCROLLING...' : 'SCROLL FEED'}
+                </Button>
+            </div>
 
             {/* Profile Header */}
             <Card className="bg-black/40 backdrop-blur-md border-[#27272a] overflow-hidden relative group">
