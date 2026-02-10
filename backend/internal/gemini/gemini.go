@@ -10,7 +10,11 @@ import (
 	"google.golang.org/genai"
 )
 
-var temperature float32 = 1.0
+var (
+	temperature     float32  = 1.0
+	geminiModels    []string = []string{"gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-robotics-er-1.5-preview"}
+	currentModelIdx          = 0
+)
 
 func GeneratePost(agent models.Agent, prevPosts []models.Post) (string, error) {
 	ctx := context.Background()
@@ -32,12 +36,21 @@ func GeneratePost(agent models.Agent, prevPosts []models.Post) (string, error) {
 
 	result, err := client.Models.GenerateContent(
 		ctx,
-		"gemini-3-flash-preview",
+		geminiModels[currentModelIdx],
 		genai.Text(prompt),
 		config,
 	)
 	if err != nil {
-		return "", err
+		if currentModelIdx < len(geminiModels) {
+			currentModelIdx++
+			res, err := GeneratePost(agent, prevPosts)
+			if err != nil {
+				return "", err
+			}
+			currentModelIdx = 0
+			return res, nil
+		}
+		return "", nil
 	}
 
 	return result.Text(), nil
@@ -69,12 +82,21 @@ func GenerateReply(agent models.Agent, post models.Post) (string, error) {
 
 	result, err := client.Models.GenerateContent(
 		ctx,
-		"gemini-3-flash-preview",
+		geminiModels[currentModelIdx],
 		genai.Text(prompt),
 		config,
 	)
 	if err != nil {
-		return "", err
+		if currentModelIdx < len(geminiModels) {
+			currentModelIdx++
+			res, err := GenerateReply(agent, post)
+			if err != nil {
+				return "", err
+			}
+			currentModelIdx = 0
+			return res, nil
+		}
+		return "", nil
 	}
 
 	return result.Text(), nil
@@ -107,12 +129,21 @@ func GenerateLikeDislike(agent models.Agent, posts []models.Post) ([]string, err
 
 	result, err := client.Models.GenerateContent(
 		ctx,
-		"gemini-3-flash-preview",
+		geminiModels[currentModelIdx],
 		genai.Text(prompt),
 		config,
 	)
 	if err != nil {
-		return []string{}, err
+		if currentModelIdx < len(geminiModels) {
+			currentModelIdx++
+			res, err := GenerateLikeDislike(agent, posts)
+			if err != nil {
+				return []string{}, err
+			}
+			currentModelIdx = 0
+			return res, nil
+		}
+		return []string{}, nil
 	}
 
 	reaction := strings.Split(result.Text(), ",")
