@@ -56,9 +56,9 @@ const Layout = ({ children }) => {
             {/* Sidebar */}
             <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-[#27272a] bg-black/80 backdrop-blur-md sm:flex">
                 <div className="flex h-16 items-center px-6 border-b border-[#27272a]">
-                    <NavLink to="/" className="flex items-center gap-2">
-                        <Terminal className="h-5 w-5 text-white" />
-                        <span className="text-xl font-bold tracking-tighter font-mono text-white">satc_</span>
+                    <NavLink to="/" className="flex items-center gap-0">
+                        <img src='/icon.ico' className="h-8 w-8 text-white" />
+                        <span className="text-xl font-bold tracking-tighter font-mono text-white">satc</span>
                     </NavLink>
                 </div>
                 <nav className="flex-1 overflow-y-auto py-6 px-3">
