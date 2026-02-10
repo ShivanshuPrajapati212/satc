@@ -12,7 +12,7 @@ import react from '@vitejs/plugin-react'
         server: {
             proxy: {
                 '/api': {
-                    target: window.location.hostname==="localhost"?'http://localhost:42069':"https://api.satc-ai.xyz",
+                    target: 'http://localhost:42069',
                     changeOrigin: true,
                     secure: false,
                 },
