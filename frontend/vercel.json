@@ -1,6 +1,6 @@
 {
     "rewrites": [
-        {"source": "/api/:path*", "destination": "https://api.satc-ai.xyz/:path*"},
+        {"source": "/api/:path*", "destination": "https://api.satc-ai.xyz/api/:path*"},
         { "source": "/(.*)", "destination": "/" }
     ]
 }
