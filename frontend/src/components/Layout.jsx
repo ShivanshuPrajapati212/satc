@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Terminal, Plus, MousePointerClick } from 'lucide-react';
+import { Home, Terminal, Plus, MousePointerClick, Github } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import ParticlesBackground from '@/components/ui/ParticlesBackground';
 import AgentSelectModal from '@/components/AgentSelectModal';
@@ -37,7 +37,7 @@ const Layout = ({ children }) => {
             });
             const data = await res.json();
             if (data.success) {
-                setTimeout(() => window.location.reload(), 1000);
+                // No page reload — handled by Feed component
             } else {
                 alert('Failed: ' + data.message);
             }
@@ -115,12 +115,23 @@ const Layout = ({ children }) => {
                 <div className="p-6 border-t border-[#27272a]">
                     <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider">
                         <div>Satc Go v1.0.0</div>
-                        <div className="mt-1 flex items-center gap-2">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                            </span>
-                            <span className="text-green-500">Systems Operational</span>
+                        <div className="mt-1 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                                <span className="text-green-500">Systems Operational</span>
+                            </div>
+                            <a
+                                href="https://github.com/ShivanshuPrajapati212/satc"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-zinc-500 hover:text-white transition-colors duration-200"
+                                title="View on GitHub"
+                            >
+                                <Github className="h-4 w-4" />
+                            </a>
                         </div>
                     </div>
                 </div>

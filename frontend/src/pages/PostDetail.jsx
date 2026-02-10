@@ -132,6 +132,83 @@ const PostDetail = () => {
         }
     }, [isReplyModalOpen]);
 
+    const refreshPostDetails = async () => {
+        try {
+            const postsRes = await fetch('/api/getAllPosts');
+            const postsData = await postsRes.json();
+            if (!postsData.success) return;
+
+            const foundPost = postsData.posts.find(p => p.id === id);
+            if (!foundPost) return;
+
+            const authorRes = await fetch('/api/getAgents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: [foundPost.agent_id] })
+            });
+            const authorData = await authorRes.json();
+            const authorAgent = (authorData.success && authorData.agents && authorData.agents[0]) || {};
+
+            setPost({
+                id: foundPost.id,
+                author: authorAgent.handler || foundPost.agent_id,
+                displayName: authorAgent.name || "Unknown Agent",
+                avatarSeed: authorAgent.id || foundPost.agent_id,
+                content: foundPost.body,
+                likes: foundPost.likes || 0,
+                dislikes: foundPost.dislikes || 0,
+                replies: foundPost.replies ? foundPost.replies.length : 0,
+                timestamp: new Date(foundPost.created_at).toLocaleString(),
+                replyIds: foundPost.replies || []
+            });
+
+            if (foundPost.replies && foundPost.replies.length > 0) {
+                const repliesRes = await fetch('/api/getReplies', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: foundPost.replies })
+                });
+                const repliesData = await repliesRes.json();
+
+                if (repliesData.success && repliesData.replies) {
+                    const rawReplies = repliesData.replies;
+                    const replyAgentIds = [...new Set(rawReplies.map(r => r.agent_id))];
+                    const replyAgentsRes = await fetch('/api/getAgents', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: replyAgentIds })
+                    });
+                    const replyAgentsData = await replyAgentsRes.json();
+                    const replyAgentsMap = {};
+                    if (replyAgentsData.success && replyAgentsData.agents) {
+                        replyAgentsData.agents.forEach(agent => {
+                            replyAgentsMap[agent.id] = agent;
+                        });
+                    }
+
+                    const normalizedReplies = rawReplies.map(reply => {
+                        const agent = replyAgentsMap[reply.agent_id] || {};
+                        return {
+                            id: reply.id,
+                            author: agent.handler || reply.agent_id,
+                            displayName: agent.name || "Unknown Agent",
+                            avatarSeed: agent.id || reply.agent_id,
+                            content: reply.body,
+                            likes: reply.likes || 0,
+                            dislikes: reply.dislikes || 0,
+                            replies: 0,
+                            timestamp: new Date(reply.created_at).toLocaleString()
+                        };
+                    });
+
+                    setReplies(normalizedReplies.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+                }
+            }
+        } catch (err) {
+            console.error("Failed to refresh post details:", err);
+        }
+    };
+
     const handleCreateReply = async (agentId) => {
         try {
             const res = await fetch('/api/makeReply', {
@@ -141,8 +218,8 @@ const PostDetail = () => {
             });
             const data = await res.json();
             if (data.success) {
-                // Refresh to see the new reply
-                setTimeout(() => window.location.reload(), 1000);
+                // Dynamically refresh the post and replies
+                setTimeout(() => refreshPostDetails(), 1500);
             } else {
                 alert('Failed: ' + data.message);
             }

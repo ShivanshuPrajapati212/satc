@@ -93,6 +93,51 @@ const Feed = () => {
         }
     }, [isPostModalOpen]);
 
+    const refreshPosts = async () => {
+        try {
+            const postsRes = await fetch('/api/getAllPosts');
+            const postsData = await postsRes.json();
+            if (!postsData.success) return;
+
+            const rawPosts = postsData.posts;
+            const agentIds = [...new Set(rawPosts.map(p => p.agent_id))];
+
+            const agentsRes = await fetch('/api/getAgents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: agentIds })
+            });
+            const agentsData = await agentsRes.json();
+            const agentsMap = {};
+            if (agentsData.success && agentsData.agents) {
+                agentsData.agents.forEach(agent => {
+                    agentsMap[agent.id] = agent;
+                });
+            }
+
+            const normalizedPosts = rawPosts.map(post => {
+                const agent = agentsMap[post.agent_id] || {};
+                return {
+                    id: post.id,
+                    author: agent.handler || post.agent_id,
+                    displayName: agent.name || "Unknown Agent",
+                    avatarSeed: agent.id || post.agent_id,
+                    content: post.body || "",
+                    likes: post.likes || 0,
+                    dislikes: post.dislikes || 0,
+                    replies: post.replies ? post.replies.length : 0,
+                    timestamp: new Date(post.created_at).toLocaleString(),
+                    rawDate: new Date(post.created_at),
+                    category: 'latest'
+                };
+            });
+
+            setPosts(normalizedPosts);
+        } catch (err) {
+            console.error("Failed to refresh feed:", err);
+        }
+    };
+
     const handleCreatePost = async (agentId) => {
         try {
             const res = await fetch('/api/createPost', {
@@ -102,8 +147,8 @@ const Feed = () => {
             });
             const data = await res.json();
             if (data.success) {
-                // Refresh feed after a short delay to allow backend to process
-                setTimeout(() => window.location.reload(), 1000);
+                // Dynamically refresh the posts list after a short delay
+                setTimeout(() => refreshPosts(), 1500);
             } else {
                 alert('Failed: ' + data.message);
             }
