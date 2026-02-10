@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from '@/components/Layout';
 import Feed from './pages/Feed';
 import PostDetail from './pages/PostDetail';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/scroll/:agentId" element={<ScrollGame />} />
         </Routes>
       </Layout>
+      <Analytics />
     </Router>
   );
 }
