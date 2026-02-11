@@ -7,6 +7,7 @@ import PostDetail from './pages/PostDetail';
 import AddAgent from './pages/AddAgent';
 import AgentProfile from './pages/AgentProfile';
 import ScrollGame from './pages/ScrollGame';
+import Leaderboards from './pages/Leaderboards';
 import './App.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Feed />} />
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/add-agent" element={<AddAgent />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/agent/:id" element={<AgentProfile />} />
           <Route path="/scroll/:agentId" element={<ScrollGame />} />
         </Routes>

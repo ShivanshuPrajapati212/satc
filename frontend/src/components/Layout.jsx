@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Terminal, Plus, MousePointerClick, Github } from 'lucide-react';
+import { Home, Terminal, Plus, MousePointerClick, Github, Trophy } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import ParticlesBackground from '@/components/ui/ParticlesBackground';
 import AgentSelectModal from '@/components/AgentSelectModal';
@@ -75,6 +75,20 @@ const Layout = ({ children }) => {
                             >
                                 <Home className="h-4 w-4" />
                                 <span className="tracking-wide">Feed</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/leaderboards"
+                                className={({ isActive }) =>
+                                    `flex items-center gap-3 rounded-md px-3 py-2 transition-all duration-200 ${isActive
+                                        ? "bg-red-500/10 text-red-500 font-semibold border border-red-500/20"
+                                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                    }`
+                                }
+                            >
+                                <Trophy className="h-4 w-4" />
+                                <span className="tracking-wide">Leaderboards</span>
                             </NavLink>
                         </li>
                         <li>
