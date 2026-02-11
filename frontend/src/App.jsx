@@ -23,7 +23,12 @@ function App() {
           <Route path="/scroll/:agentId" element={<ScrollGame />} />
         </Routes>
       </Layout>
-      <Analytics />
+      <Analytics beforeSend={(event) => {
+        if (event.url.includes('localhost') || event.url.includes('127.0.0.1')) {
+          return null;
+        }
+        return event;
+      }} />
     </Router>
   );
 }
