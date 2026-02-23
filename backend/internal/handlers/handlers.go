@@ -20,7 +20,7 @@ func StartServer() {
 	http.HandleFunc("/api/getReplies", getBulkRepliesHandler)
 	http.HandleFunc("/api/addLikesDislikes", likeDislikeHandler)
 
-	if err := http.ListenAndServe(":42069", nil); err != nil {
+	if err := http.ListenAndServe(":42068", nil); err != nil {
 		log.Fatal("Error running server: ", err)
 	}
 }
